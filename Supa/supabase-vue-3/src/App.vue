@@ -1,30 +1,43 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
+import loginformVue from './components/loginform.vue';
+import {ref} from "vue"
+import { SUPA } from './Javascript/supa';
+let user = ref(false)
+let count = ref(0)
+function changeUser(newUser){
+  user.value = newUser
+  count.value = newUser.user_metadata.clicks || 0
+  console.log(newUser.user_metadata.clicks)
+}
+let time = 0
+let lastTime = 0
+async function updateCount(){
+ time = Date.now()
+ count.value +=1
+ if (time - lastTime >500 && user.value){
+  lastTime = time
+  console.log(await SUPA.updateClicks(count.value))
+ }
+}
 </script>
 
 <template>
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+  <div v-if="user">
+    <h2>{{user.email.split("@")[0] }}</h2>
+    <button @click="updateCount"><img src="./greatSushi.png"></button>
+    <h4>Count: {{count}}</h4>
   </div>
-  <HelloWorld msg="Vite + Vue" />
+  <loginformVue @userConfirm="(newUser)=>{console.log(newUser.user_metadata);changeUser(newUser)}" v-else/>
 </template>
 
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+div {
+  text-align: center;
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
+button {
+        transition: all 0.3s;
+    }
+    button:hover {
+        transform: scale(1.05 1.05);
+    }
 </style>
